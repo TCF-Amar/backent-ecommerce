@@ -5,9 +5,11 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:5000/api/v1" },
-    { "key": "token", "value": "" },
-    { "key": "admin_token", "value": "" }
+    {
+      "key": "base_url",
+      "value": "https://backent-ecommerce-production.up.railway.app/api/v1"
+    },
+    { "key": "token", "value": "" }
   ],
   "item": [
     {
@@ -181,7 +183,9 @@
           "request": {
             "method": "DELETE",
             "url": "{{base_url}}/products/PRODUCT_ID",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         }
       ]
@@ -341,7 +345,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/orders?page=1&status=PENDING",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -472,7 +478,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/dashboard",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -480,7 +488,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/revenue/chart?days=30",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -488,7 +498,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/orders/status",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -496,7 +508,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/products/top?limit=10",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -504,7 +518,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/products/low-stock?threshold=10",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -512,7 +528,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/categories/top",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         },
         {
@@ -520,7 +538,9 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/admin/orders/recent?limit=10",
-            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ]
           }
         }
       ]
