@@ -7,9 +7,162 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
-// ENUMS
-// ─────────────────────────────────────────
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  password     String
+  name         String
+  phone        String?
+  role         Role           @default(USER)
+  isActive     Boolean        @default(true)
+  refreshToken String?
+  isProtected  Boolean        @default(false)
+  expiresAt    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  addresses    Address[]
+  cart         Cart?
+  orders       Order[]
+  reviews      Review[]
+  wishlist     WishlistItem[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  description   String
+  price         Float
+  comparePrice  Float?
+  stock         Int            @default(0)
+  sku           String         @unique
+  images        String[]
+  tags          String[]
+  rating        Float          @default(0)
+  reviewCount   Int            @default(0)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  categoryId    String
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  category      Category       @relation(fields: [categoryId], references: [id])
+  reviews       Review[]
+  wishlistItems WishlistItem[]
+
+  @@map("products")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  userId    String     @unique
+  items     CartItem[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  quantity  Int     @default(1)
+  cartId    String
+  productId String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
+  totalAmount Float
+  note        String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      String
+  addressId   String?
+  items       OrderItem[]
+  address     Address?    @relation(fields: [addressId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  quantity  Int
+  price     Float
+  orderId   String
+  productId String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  userId    String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("reviews")
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
 
 enum Role {
   USER
@@ -23,205 +176,4 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
-}
-
-// ─────────────────────────────────────────
-// USER
-// ─────────────────────────────────────────
-
-model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  password     String
-  name         String
-  phone        String?
-  role         Role      @default(USER)
-  isActive     Boolean   @default(true)
-  refreshToken String?
-  isProtected  Boolean   @default(false)
-  expiresAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  cart      Cart?
-  orders    Order[]
-  addresses Address[]
-  reviews   Review[]
-  wishlist  WishlistItem[]
-
-  @@map("users")
-}
-
-// ─────────────────────────────────────────
-// CATEGORY
-// ─────────────────────────────────────────
-
-model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
-  description String?
-  image       String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-
-  products    Product[]
-
-  @@map("categories")
-}
-
-// ─────────────────────────────────────────
-// PRODUCT
-// ─────────────────────────────────────────
-
-model Product {
-  id           String   @id @default(cuid())
-  name         String
-  slug         String   @unique
-  description  String
-  price        Float                     // selling price
-  comparePrice Float?                    // MRP / original price (for discount %)
-  stock        Int      @default(0)
-  sku          String   @unique
-  images       String[]                  // array of image URLs
-  tags         String[]
-  rating       Float    @default(0)
-  reviewCount  Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  categoryId   String
-  category     Category    @relation(fields: [categoryId], references: [id])
-  cartItems    CartItem[]
-  orderItems   OrderItem[]
-  reviews      Review[]
-  wishlistItems WishlistItem[]
-
-  @@map("products")
-}
-
-// ─────────────────────────────────────────
-// CART
-// ─────────────────────────────────────────
-
-model Cart {
-  id        String     @id @default(cuid())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  userId    String     @unique
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items     CartItem[]
-
-  @@map("carts")
-}
-
-model CartItem {
-  id        String  @id @default(cuid())
-  quantity  Int     @default(1)
-
-  cartId    String
-  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-
-  // One product can appear only once per cart
-  @@unique([cartId, productId])
-  @@map("cart_items")
-}
-
-// ─────────────────────────────────────────
-// ORDER
-// ─────────────────────────────────────────
-
-model Order {
-  id          String      @id @default(cuid())
-  orderNumber String      @unique  // e.g., ORD-20240122-0001
-  status      OrderStatus @default(PENDING)
-  totalAmount Float
-  note        String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  userId    String
-  user      User        @relation(fields: [userId], references: [id])
-  items     OrderItem[]
-  addressId String?
-  address   Address?    @relation(fields: [addressId], references: [id])
-
-  @@map("orders")
-}
-
-model OrderItem {
-  id        String  @id @default(cuid())
-  quantity  Int
-  price     Float   // snapshot price at time of order (important!)
-
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-
-  @@map("order_items")
-}
-
-// ─────────────────────────────────────────
-// ADDRESS
-// ─────────────────────────────────────────
-
-model Address {
-  id        String  @id @default(cuid())
-  name      String
-  phone     String
-  line1     String
-  line2     String?
-  city      String
-  state     String
-  pincode   String
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders    Order[]
-
-  @@map("addresses")
-}
-
-// ─────────────────────────────────────────
-// REVIEW
-// ─────────────────────────────────────────
-
-model Review {
-  id        String   @id @default(cuid())
-  rating    Int      // 1–5
-  comment   String?
-  createdAt DateTime @default(now())
-
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  // One review per product per user
-  @@unique([userId, productId])
-  @@map("reviews")
-}
-
-// ─────────────────────────────────────────
-// WISHLIST
-// ─────────────────────────────────────────
-
-model WishlistItem {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, productId])
-  @@map("wishlist_items")
 }
