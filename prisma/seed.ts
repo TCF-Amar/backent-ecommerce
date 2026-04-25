@@ -323,7 +323,8 @@ const PRODUCTS: ProductTemplate[] = [
 async function main() {
   console.log("🌱 Starting database seed...\n");
 
-  // 1. Clean existing data (order matters for FK constraints)
+  // 1. Clean existing data (Commented out because reset/push handles this)
+  /*
   await prisma.review.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
@@ -334,6 +335,7 @@ async function main() {
   await prisma.category.deleteMany();
   await prisma.user.deleteMany();
   console.log("✅ Cleared existing data");
+  */
 
   // 2. Seed 4 protected default users (isProtected = true — NEVER auto-deleted)
   const defaultUsers = [
